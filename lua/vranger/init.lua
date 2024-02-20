@@ -15,7 +15,7 @@ local COMMANDS = {
 
 local function read_callback(err, data)
     -- EOF?
-    if data == nil then return end
+    if err ~= nil or data == nil then return end
 
     if data:byte(1) == 0 then
         for cmd, msg in data:gmatch('%z(.)(.*)%z') do
@@ -27,26 +27,29 @@ local function read_callback(err, data)
             end
         end
     else
-        -- select(files?|dir)
+        -- XXX: This sucks. Track window numbers properly later
+        vim.schedule(function() vim.cmd('bd! | e ' .. data) end)
     end
 end
 
 function M.open(dir, mods)
-    if mods == nil then
+    if mods == '' then
         mods = 'tab'
     end
 
     vim.cmd(mods .. ' new')
 
     local pipe = pipe.new(read_callback)
-    local cmd = { 'ranger', RANGER_CMDARG }
+    local pp = pipe:write_path()
+
+    local cmd = { 'ranger', RANGER_CMDARG, '--choosefile=' .. pp }
 
     if dir ~= nil then
         table.insert(cmd, vim.fs.normalize(dir))
     end
 
     vim.fn.termopen(cmd, {
-        env = { ['NVIM_PIPE_PATH'] = pipe:write_path() },
+        env = { ['NVIM_PIPE_PATH'] = pp },
         on_exit = function()
             pipe:close()
         end

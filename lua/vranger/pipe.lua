@@ -20,7 +20,7 @@ end
 
 function Pipe:close()
     uv.fs_close(self.write)
-    fds.read:close()
+    self.read:close()
 end
 
 function Pipe:write_path()
