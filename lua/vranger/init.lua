@@ -14,6 +14,9 @@ local COMMANDS = {
 }
 
 local function read_callback(err, data)
+    -- EOF?
+    if data == nil then return end
+
     if data:byte(1) == 0 then
         for cmd, msg in data:gmatch('%z(.)(.*)%z') do
             local cmd = cmd:byte(1)
@@ -28,10 +31,21 @@ local function read_callback(err, data)
     end
 end
 
-function M.test()
-    vim.cmd.tabnew()
+function M.open(dir, mods)
+    if mods == nil then
+        mods = 'tab'
+    end
+
+    vim.cmd(mods .. ' new')
+
     local pipe = pipe.new(read_callback)
-    local job = vim.fn.termopen({ 'ranger', RANGER_CMDARG }, {
+    local cmd = { 'ranger', RANGER_CMDARG }
+
+    if dir ~= nil then
+        table.insert(cmd, vim.fs.normalize(dir))
+    end
+
+    vim.fn.termopen(cmd, {
         env = { ['NVIM_PIPE_PATH'] = pipe:write_path() },
         on_exit = function()
             pipe:close()
@@ -39,8 +53,15 @@ function M.test()
     })
 end
 
-function M.setup(opts)
+local function cmd_ranger(args)
+    M.open(args.args, args.mods)
+end
 
+function M.setup(opts)
+    vim.api.nvim_create_user_command('Ranger', cmd_ranger, {
+        nargs = '?',
+    })
+    -- todo: configs
 end
 
 return M

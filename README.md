@@ -11,6 +11,14 @@ It:
 Currently implemented:
 
 - [ ] Commands (:Ex and friends)
+    - [x] :Ranger [dir] (subject to change)
 - [ ] Netrw-dropin (FileExplorer autocmds)
 - [ ] Keybindings
+- [ ] Docs
 - [ ] Most of the things you want from a neovim plugin
+
+lazy.nvim:
+
+```lua
+{ 'LunarLambda/nvim-vranger', opts = {} }
+```
