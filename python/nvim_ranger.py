@@ -16,4 +16,13 @@ class CommandModule:
         def execute(self):
             NVIM_PIPE_FILE.write(b'\0\0hello neovim!\0')
 
+    class nvim_open(Command):
+        def execute(self):
+            file = self.fm.thisfile
+            if file.is_file and not file.is_binary():
+                NVIM_PIPE_FILE.write(b'\0\1' + str(file).encode('utf-8') + b'\0')
+            else:
+                self.fm.move(right=1)
+
+
 fm.commands.load_commands_from_module(CommandModule)

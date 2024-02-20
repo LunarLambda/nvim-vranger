@@ -10,7 +10,8 @@ local PYTHON_INTEGRATION = vim.api.nvim_get_runtime_file('python/nvim_ranger.py'
 local RANGER_CMDARG = ('--cmd=eval exec(open(%q).read())'):format(PYTHON_INTEGRATION)
 
 local COMMANDS = {
-    [0] = print
+    [0] = print,
+    [1] = vim.cmd.edit,
 }
 
 local function read_callback(err, data)
@@ -42,7 +43,14 @@ function M.open(dir, mods)
     local pipe = pipe.new(read_callback)
     local pp = pipe:write_path()
 
-    local cmd = { 'ranger', RANGER_CMDARG, '--choosefile=' .. pp }
+    local cmd = {
+        'ranger',
+        RANGER_CMDARG,
+        '--cmd=map l nvim_open',
+        '--cmd=map <c-j> nvim_open',
+        '--cmd=map <right> nvim_open',
+        --'--choosefile=' .. pp
+    }
 
     if dir ~= nil then
         table.insert(cmd, vim.fs.normalize(dir))
