@@ -26,6 +26,8 @@ end
 local DEFAULT_OPTIONS = {
     commands = true,
 
+    replace_netrw = false,
+
     ranger = {
         executable = 'ranger',
         bindings = {},
@@ -35,17 +37,7 @@ local DEFAULT_OPTIONS = {
 
 local OPTIONS = DEFAULT_OPTIONS
 
-function M.open(dir, mods)
-    local cmd
-
-    if mods == '' then
-        cmd = 'enew'
-    else
-        cmd = mods .. ' new'
-    end
-
-    vim.cmd(cmd)
-
+local function ranger(dir)
     local buf = vim.fn.bufnr()
 
     vim.api.nvim_create_autocmd('BufEnter', {
@@ -84,19 +76,72 @@ function M.open(dir, mods)
     })
 end
 
+function M.open(dir, mods)
+    local cmd
+
+    if mods == '' then
+        cmd = 'enew'
+    else
+        cmd = mods .. ' new'
+    end
+
+    vim.cmd(cmd)
+
+    ranger(dir)
+end
+
 local function cmd_ranger(args)
     M.open(args.args, args.mods)
 end
 
-local function create_commands(opts)
+local function create_commands()
     vim.api.nvim_create_user_command('Ranger', cmd_ranger, { nargs = '?' })
+end
+
+function M.browse(dir)
+    if vim.fn.isdirectory(dir) == 1 then
+        ranger(dir)
+    end
+end
+
+local function replace_netrw()
+    -- local-only mode: use netrw for remote editing
+    if OPTIONS.replace_netrw == 'local' then
+        vim.cmd.runtime('plugin/netrwPlugin.vim')
+    else
+        vim.g.loaded_netrw = 1
+        vim.g.loaded_netrwPlugin = 1
+    end
+
+    local augroup = vim.api.nvim_create_augroup('FileExplorer', { clear = true })
+
+    vim.api.nvim_create_autocmd('BufEnter', {
+        group = augroup,
+        callback = function(args)
+            M.browse(args.match)
+        end,
+        nested = true,
+    })
+
+    vim.api.nvim_create_autocmd('VimEnter', {
+        group = augroup,
+        callback = function(args)
+            local winnr = vim.fn.winnr()
+            vim.cmd('windo lua require(\'vranger\').browse(vim.fn.expand(\'%:p\'))')
+            vim.cmd(winnr .. 'wincmd w')
+        end,
+    })
 end
 
 function M.setup(opts)
     OPTIONS = vim.tbl_deep_extend('force', DEFAULT_OPTIONS, opts)
 
     if OPTIONS.commands == true then
-        create_commands(opts)
+        create_commands()
+    end
+
+    if OPTIONS.replace_netrw ~= false then
+        replace_netrw()
     end
 end
 

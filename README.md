@@ -12,7 +12,7 @@ Features:
 
 - [ ] Commands (:Ex and friends)
     - [x] :Ranger \[dir\] (subject to change)
-- [ ] Netrw-dropin (FileExplorer autocmds)
+- [x] Netrw-dropin (FileExplorer autocmds)
 - [x] Keybindings
 - [x] Docs
 
@@ -38,6 +38,11 @@ Defaults:
 {
     -- Register ex commands (:Ranger)
     commands = true,
+
+    -- Replace netrw as local file browser
+    -- true disables netrw entirely
+    -- 'local' allows using netrw for network browsing
+    replace_netrw = false,
 
     ranger = {
         -- Name/path of ranger executable
