@@ -1,33 +1,25 @@
 # vranger - Rich Ranger Integration for Neovim
 
-WIP!
+This plugin utilizes Neovim's APIs to integrate cleanly and asynchronously with the Ranger file
+browser. It includes a Python script that allows adding neovim-specific commands to Ranger which
+communicate back to Neovim via a basic IPC mechanism.
 
-It:
-
-1. Uses a python integration script to add neovim-specific commands to ranger
-   without needing to touch the user's configuration files
-2. Uses pipes to communicate with ranger directly and asynchronously
-
-Features:
-
-- [ ] Commands (:Ex and friends)
-    - [x] :Ranger \[dir\] (subject to change)
-- [x] Netrw-dropin (FileExplorer autocmds)
-- [x] Keybindings
-- [x] Docs
+`vranger` can be used as a drop-in for netrw's local browsing functionality
 
 ## Installation
 
-lazy.nvim:
+### lazy.nvim
 
 ```lua
 { 'LunarLambda/nvim-vranger', opts = {} }
 ```
 
-Manual:
+### Manual
+
+Add the plugin to your runtime path and run the following Lua code:
 
 ```lua
-require('vranger').setup({...})
+require('vranger').setup(opts)
 ```
 
 ## Configuration
@@ -65,4 +57,4 @@ Command                | Description
 `nvim_msg <args...>`   | Print message inside Neovim
 `nvim_open [modifier]` | Open selected file in Neovim [^1]. Modifiers are `sp[lit]`, `vs[plit]`, `tab`.
 
-[^1]: Won't open binary files and fallback to Ranger's default behaviour instead.
+[^1]: Won't open binary files and falls back to Ranger's default behaviour instead.
