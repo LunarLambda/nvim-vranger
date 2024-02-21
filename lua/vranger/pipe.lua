@@ -7,7 +7,7 @@ Pipe.__index = Pipe
 
 -- [OS dependent] format string for IPC-pipes
 -- Could also use mkfifo w/ tmp path
-local PIPEFMT = ('/proc/%d/fd/%%d'):format(vim.uv.os_getpid())
+local PIPEFMT = string.format('/proc/%d/fd/%%d', vim.uv.os_getpid())
 
 function M.new(read_callback)
     local fds = uv.pipe()
